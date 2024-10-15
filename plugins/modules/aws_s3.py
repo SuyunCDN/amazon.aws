@@ -463,9 +463,9 @@ def delete_folder(module, s3, bucket, obj):
     if 'Contents' in response:
         objects_to_delete = [{'Key': obj['Key']} for obj in response['Contents']]
         s3.delete_objects(Bucket=bucket, Delete={'Objects': objects_to_delete})
-        module.exit_json(f"Deleted folder {obj} and it's contents")
+        module.exit_json(msg=f"Deleted folder {obj} and it's contents", changed=True)
     else:
-        module.exit_json(f"Doesn't found content with prefix {obj}")
+        module.exit_json(msg=f"Doesn't found content with prefix {obj}", changed=True)
 
 def delete_key(module, s3, bucket, obj):
     if module.check_mode:
