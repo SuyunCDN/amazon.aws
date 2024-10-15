@@ -472,7 +472,7 @@ def delete_key(module, s3, bucket, obj):
         module.exit_json(msg="DELETE operation skipped - running in check mode", changed=True)
     try:
         if obj[::-1][0] == '/':
-
+            delete_folder(module, s3, bucket, obj)
         else:
             s3.delete_object(Bucket=bucket, Key=obj)
         module.exit_json(msg="Object deleted from bucket %s." % (bucket), changed=True)
