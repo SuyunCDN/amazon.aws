@@ -458,12 +458,23 @@ def delete_bucket(module, s3, bucket):
     except (botocore.exceptions.ClientError, botocore.exceptions.BotoCoreError) as e:  # pylint: disable=duplicate-except
         module.fail_json_aws(e, msg="Failed while deleting bucket %s." % bucket)
 
+def delete_folder(module, s3, bucket, obj):
+    response = s3.list_objects_v2(Bucket=bucket, Prefix=obj)
+    if 'Contents' in response:
+        objects_to_delete = [{'Key': obj['Key']} for obj in response['Contents']]
+        s3.delete_objects(Bucket=bucket, Delete={'Objects': objects_to_delete})
+        module.exit_json(f"Deleted folder {obj} and it's contents")
+    else:
+        module.exit_json(f"Doesn't found content with prefix {obj}")
 
 def delete_key(module, s3, bucket, obj):
     if module.check_mode:
         module.exit_json(msg="DELETE operation skipped - running in check mode", changed=True)
     try:
-        s3.delete_object(Bucket=bucket, Key=obj)
+        if obj[::-1][0] == '/':
+
+        else:
+            s3.delete_object(Bucket=bucket, Key=obj)
         module.exit_json(msg="Object deleted from bucket %s." % (bucket), changed=True)
     except (botocore.exceptions.ClientError, botocore.exceptions.BotoCoreError) as e:
         module.fail_json_aws(e, msg="Failed while trying to delete %s." % obj)
